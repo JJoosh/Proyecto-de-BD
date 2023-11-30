@@ -1,0 +1,51 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1em 0;
+}
+
+#productos {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin: 20px;
+}
+
+.producto {
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+#carrito {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+#carrito h2 {
+    text-align: center;
+}
+
+#lista-carrito {
+    list-style: none;
+    padding: 0;
+}
+
+#lista-carrito li {
+    margin-bottom: 10px;
+}
+
+#total {
+    text-align: right;
+    font-weight: bold;
+    font-size: 1.2em;
+}
