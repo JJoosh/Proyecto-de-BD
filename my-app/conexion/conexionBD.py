@@ -9,7 +9,7 @@ def connectionBD():
         # connection = mysql.connector.connect(
         connection = mysql.connector.connect(
             host="127.0.0.1",
-            user="joshua",
+            user="josh",
             passwd="1234",
             database="shop_store",
             port=3306,
