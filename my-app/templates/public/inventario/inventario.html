@@ -1,0 +1,63 @@
+{% extends 'public/base_cpanel.html' %}
+<!-- Cambiando el title -->
+{% block title %}Crud con Python 🐍 | Inventario{% endblock %}
+<!-- Inicio del block -->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">INVENTARIO</h3>
+      <hr />
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+          table-hover
+          id="tbl_inventario"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Talla</th>
+              <th>Modelo</th>
+              <th>Costo</th>
+              <th>Categoría</th>
+              <th>Clasificación</th>
+              <th>Existencia</th> <!-- Nueva columna -->
+              <th>Acción</th> <!-- Nueva columna -->
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in inventario %}
+            <tr id="producto_{{ producto.Id }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ producto.Nombre }}</td>
+              <td>{{ producto.Talla }}</td>
+              <td>{{ producto.Modelo }}</td>
+              <td>
+                $ {{ '{:,.2f}'.format(producto.Costo).replace(',','.')}}
+              </td>
+              <td>{{ producto.id_categoria }}</td>
+              <td>{{ producto.id_clasificacion }}</td>
+              <td>{{ producto.Existencia }}</td> <!-- Nueva columna -->
+              <td>
+                <!-- Nueva columna con botones de acción -->
+                <a href="{{ url_for('detalleProducto', idProducto=producto.Id) }}" class="btn btn-primary btn-sm">Detalles</a>
+                <a href="{{ url_for('actualizarExistenciaProducto', idProducto=producto.Id) }}" class="btn btn-success btn-sm">Actualizar</a>
+                <a href="{{ url_for('borrarProducto', idProducto=producto.Id) }}" class="btn btn-danger btn-sm">Eliminar</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

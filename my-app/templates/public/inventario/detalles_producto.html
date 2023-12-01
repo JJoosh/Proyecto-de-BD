@@ -1,0 +1,82 @@
+{% extends 'public/base_cpanel.html' %}
+<!-- Cambiando el title -->
+{% block title %}Crud con Python 🐍 | Detalles de Producto{% endblock %}
+
+<!-- Inicio del block -->
+{% block body %}
+<!---->
+
+{% if (detalle_producto|length) %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">
+        <a href="/inventario">
+          <i class="bi bi-arrow-left-circle"></i>
+        </a>
+        DETALLES DEL PRODUCTO
+      </h3>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <label for="nombre_producto" class="form-label">
+              Nombre del Producto
+            </label>
+            <br />
+            {{ detalle_producto.Nombre }}
+          </div>
+          <div class="col-md-6">
+            <label for="talla_producto" class="form-label">
+              Talla del Producto
+            </label>
+            <br />
+            {{ detalle_producto.Talla }}
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-md-6">
+            <label for="modelo_producto" class="form-label">
+              Modelo del Producto
+            </label>
+            <br />
+            {{ detalle_producto.Modelo }}
+          </div>
+          <div class="col-md-6">
+            <label for="costo_producto" class="form-label">
+              Costo del Producto
+            </label>
+            <br />
+            $ {{ '{:,.2f}'.format(detalle_producto.Costo).replace(',','.')}}
+          </div>
+        </div>
+
+        <!-- Agrega aquí más detalles según la estructura de tu base de datos -->
+
+        <div class="row mt-2">
+          <div class="col-md-6">
+            <label for="existencia_producto" class="form-label">
+              Existencia del Producto
+            </label>
+            <br />
+            {{ detalle_producto.Existencia }}
+          </div>
+          <!-- Agrega más detalles según la estructura de tu base de datos -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<h2 class="text-center">
+  No existe el Producto 😭
+  <hr />
+</h2>
+{% endif %} {% endblock %}

@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template, request, flash, redirect, url_for, session,  jsonify
 from mysql.connector.errors import Error
-
+from conexion.conexionBD import connectionBD
 
 # Importando cenexión a BD
 from controllers.funciones_home import *
@@ -123,3 +123,126 @@ def reporteBD():
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
+@app.route('/inventario')
+def inventory():
+    # Verificar si el usuario está conectado
+    if 'conectado' in session:
+        # Obtener datos de la tabla de inventario
+        conexion_MySQLdb = connectionBD()
+        cursor = conexion_MySQLdb.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Inventario")
+        inventario_data = cursor.fetchall()
+
+        # Cerrar la conexión
+        cursor.close()
+        conexion_MySQLdb.close()
+
+        # Renderizar la plantilla con los datos del inventario
+        return render_template('public/inventario/inventario.html', inventario=inventario_data)
+    else:
+        flash('Debes iniciar sesión para acceder al inventario.', 'error')
+        return redirect(url_for('loginCliente'))
+
+@app.route('/ventas')
+def ventas():
+    # Lógica para la página de ventas
+    return render_template('public/ventas/ventas.html')
+
+
+
+def sql_detalles_productoBD(id_producto):
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor(dictionary=True)
+
+    # Ejemplo de consulta SQL para obtener detalles del producto
+    sql_query = "SELECT * FROM Inventario WHERE Id = %s" % id_producto
+    print("Consulta SQL:", sql_query)
+    cursor.execute("SELECT * FROM Inventario WHERE Id = %s", [id_producto])
+
+    detalle_producto = cursor.fetchone()
+
+    # Cerrar la conexión
+    cursor.close()
+    conexion_MySQLdb.close()
+
+    return detalle_producto
+
+#Ver detalles del producto
+@app.route("/detalles-producto/", methods=['GET'])
+@app.route("/detalles-producto/<int:idProducto>", methods=['GET'])
+def detalleProducto(idProducto=None):
+    if 'conectado' in session:
+        # Verificamos si el parámetro idProducto es None o no está presente en la URL
+        if idProducto is None:
+            return redirect(url_for('inventario'))
+        else:
+            detalle_producto = sql_detalles_productoBD(idProducto) or []
+            return render_template('public/inventario/detalles_producto.html', detalle_producto=detalle_producto)
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('loginCliente'))
+    
+
+@app.route("/actualizar-producto/<int:idProducto>", methods=['GET', 'POST'])
+def actualizarExistenciaProducto(idProducto):
+    if 'conectado' in session:
+        if request.method == 'POST':
+            # Obtener la nueva existencia del formulario
+            nueva_existencia = request.form.get('existencia_producto')
+
+            # Lógica para actualizar solo el campo de existencia en la base de datos
+            data = {'form': {'existencia_producto': nueva_existencia, 'Id': idProducto}}
+            procesar_actualizacion_existencia(data)
+
+            flash('Existencia del producto actualizada exitosamente.', 'success')
+            return redirect(url_for('inventory'))
+        else:
+            # Obtener detalles del producto para prellenar el formulario de actualización
+            detalle_producto = sql_detalles_productoBD(idProducto) or []
+            return render_template('public/inventario/actualizar_producto.html', detalle_producto=detalle_producto)
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('loginCliente'))
+    
+
+@app.route('/borrar-producto/<string:idProducto>', methods=['GET'])
+def borrarProducto(idProducto):
+    resp = eliminarProductoInventario(idProducto)
+    if resp:
+        flash('El producto fue eliminado correctamente', 'success')
+    else:
+        flash('Hubo un error al intentar eliminar el producto', 'error')
+
+    return redirect(url_for('inventory'))
+
+
+
+@app.route('/registrarInventario')
+def registrarInventario():
+    # Lógica para la página de ventas
+    return render_template('public/inventario/registrarInventario.html')
+
+
+
+@app.route('/registrar-inventario', methods=['GET'])
+def viewFormInventario():
+    if 'conectado' in session:
+        return render_template('public/inventario/registrarInventario.html')
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+
+@app.route('/form-registrar-inventario', methods=['POST'])
+def formInventario():
+    if 'conectado' in session:
+        resultado = procesar_form_inventario(request.form)
+
+        if resultado:
+            return redirect(url_for('inventory'))
+        else:
+            flash('El inventario NO fue registrado.', 'error')
+            return render_template('')
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))

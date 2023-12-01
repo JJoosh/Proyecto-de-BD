@@ -389,3 +389,68 @@ def eliminarUsuario(id):
     except Exception as e:
         print(f"Error en eliminarUsuario : {e}")
         return []
+
+
+##Funciones de Inventario
+def procesar_actualizacion_existencia(data):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                existencia_producto = data['form']['existencia_producto']
+                id_producto = data['form']['Id']
+                querySQL = """
+                    UPDATE Inventario
+                    SET Existencia = %s
+                    WHERE Id = %s
+                """
+                values = (existencia_producto, id_producto)
+
+                cursor.execute(querySQL, values)
+                conexion_MySQLdb.commit()
+
+        return cursor.rowcount or []
+    except Exception as e:
+        print(f"Ocurrió un error en procesar_actualizacion_existencia: {e}")
+        return None
+
+
+def eliminarProductoInventario(id):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = "DELETE FROM Inventario WHERE id=%s"
+                cursor.execute(querySQL, (id,))
+                conexion_MySQLdb.commit()
+                resultado_eliminar = cursor.rowcount
+
+        return resultado_eliminar
+    except Exception as e:
+        print(f"Error en eliminarUsuario : {e}")
+        return []
+
+
+def procesar_form_inventario(dataForm):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                
+                # Modifiqué la sentencia SQL para incluir las nuevas columnas
+                sql = "INSERT INTO Inventario (Nombre, Talla, Modelo, Costo, Existencia) VALUES (%s, %s, %s, %s, %s)"
+
+                # Creando una tupla con los valores del INSERT
+                valores = (
+                    dataForm['nombre_producto'],
+                    dataForm['talla_producto'],
+                    dataForm['modelo_producto'],
+                    dataForm['costo_producto'],
+                    dataForm['Existencia']
+                )
+                cursor.execute(sql, valores)
+
+                conexion_MySQLdb.commit()
+                resultado_insert = cursor.rowcount
+                return resultado_insert
+
+    except Exception as e:
+        return f'Se produjo un error en procesar_form_inventario: {str(e)}'
+

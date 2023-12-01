@@ -1,6 +1,6 @@
 import re
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from flask_login import current_user, logout_user, login_required
 from flask_mysqldb import MySQL
 import mysql.connector
 
@@ -38,7 +38,7 @@ def login():
         username = form['username']
         password = form['password']
 
-        connection = mysql.connector.connect(host='127.0.0.1', user='joshua', password='1234', database='shop_store')
+        connection = mysql.connector.connect(host='127.0.0.1', user='josh', password='1234', database='shop_store')
         cursor = connection.cursor(dictionary=False)
         cursor.execute("SELECT * FROM users WHERE email_user = %s AND pass_user = %s", (username, password))
         account = cursor.fetchone()
@@ -76,7 +76,7 @@ def register():
         password = form['pswd']
         fullname = form['fullname']
 
-        connection = mysql.connector.connect(host='127.0.0.1', user='joshua', password='1234', database='shop_store')
+        connection = mysql.connector.connect(host='127.0.0.1', user='josh', password='1234', database='shop_store')
         cursor = connection.cursor(dictionary=False)
         cursor.execute("SELECT * FROM users WHERE email_user = %s", (username,))
         account = cursor.fetchone()

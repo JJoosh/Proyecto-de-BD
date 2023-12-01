@@ -1,0 +1,82 @@
+{% extends 'public/base_cpanel.html' %}
+{% block title %}Crud con Python 🐍 | Editar Existencia{% endblock %}
+
+{% block body %}
+<!-- Si existe el detalle del producto -->
+{% if detalle_producto %}
+<div class="card" style="border-radius: 0px !important">
+    <div class="row justify-content-center mb-2">
+        <div class="col-md-12">
+            <h3 class="text-center mt-5 mb-3">
+                <a href="/inventario">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </a>
+                EDITAR EXISTENCIA DEL PRODUCTO
+            </h3>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-2">
+        <div class="col-md-10">
+            <form
+                class="form-horizontal mx-auto"
+                method="POST"
+                action="{{ url_for('actualizarExistencia', id = detalle_producto.Id ) }}"
+                autocomplete="off"
+                enctype="multipart/form-data">
+                <input
+                    type="text"
+                    class="form-control"
+                    name="id_producto"
+                    value="{{ detalle_producto.Id }}"
+                    required
+                    hidden />
+
+                <div class="card-body">
+                    <!-- Agrega aquí campos de entrada según la estructura de tu base de datos -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label for="nombre_producto" class="form-label">
+                                Nombre del Producto
+                            </label>
+                            <input
+                                type="text"
+                                name="nombre_producto"
+                                value="{{ detalle_producto.Nombre }}"
+                                class="form-control"
+                                required
+                                disabled />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="existencia_producto" class="form-label">
+                                Existencia del Producto
+                            </label>
+                            <input
+                                type="text"
+                                name="existencia_producto"
+                                value="{{ detalle_producto.Existencia }}"
+                                class="form-control"
+                                required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-4 text-center">
+                        <button type="submit" class="btn rounded-pill btn-primary">
+                            Guardar actualización
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Si no existe el detalle del producto -->
+{% else %}
+<h2 class="text-center">
+    No existe el Producto 😭
+    <hr />
+</h2>
+{% endif %}
+{% endblock %}

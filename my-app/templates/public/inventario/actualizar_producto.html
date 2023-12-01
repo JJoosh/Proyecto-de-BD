@@ -1,0 +1,123 @@
+{% extends 'public/base_cpanel.html' %}
+<!-- Cambiando el title -->
+{% block title %}Crud con Python 🐍 | Actualizar Producto{% endblock %}
+
+<!-- Inicio del block -->
+{% block body %}
+<!---->
+
+{% if (detalle_producto|length) %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">
+        <a href="/inventario">
+          <i class="bi bi-arrow-left-circle"></i>
+        </a>
+        ACTUALIZAR DATOS DEL PRODUCTO
+      </h3>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="{{ url_for('actualizarExistenciaProducto', idProducto = detalle_producto.Id ) }}"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <input
+          type="text"
+          class="form-control"
+          name="id_producto"
+          value="{{ detalle_producto.Id }}"
+          required
+          hidden />
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="nombre_producto" class="form-label">
+                Nombre del Producto
+              </label>
+              <input
+                type="text"
+                name="nombre_producto"
+                value="{{ detalle_producto.Nombre }}"
+                class="form-control"
+                required
+                disabled />
+            </div>
+            <div class="col-md-6">
+              <label for="talla_producto" class="form-label">
+                Talla del Producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="talla_producto"
+                value="{{ detalle_producto.Talla }}"
+                required
+                disabled />
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-md-6">
+              <label for="modelo_producto" class="form-label">
+                Modelo del Producto
+              </label>
+              <input
+                type="text"
+                name="modelo_producto"
+                value="{{ detalle_producto.Modelo }}"
+                class="form-control"
+                required
+                disabled />
+            </div>
+            <div class="col-md-6">
+              <label for="costo_producto" class="form-label">
+                Costo del Producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="costo_producto"
+                value="{{ detalle_producto.Costo }}"
+                required
+                disabled />
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-md-6">
+              <label for="existencia_producto" class="form-label">
+                Existencia del Producto
+              </label>
+              <input
+                type="text"
+                name="existencia_producto"
+                value="{{ detalle_producto.Existencia }}"
+                class="form-control"
+                required />
+            </div>
+          </div>
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar actualización
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<h2 class="text-center">
+  No existe el Producto 😭
+  <hr />
+</h2>
+{% endif %} {% endblock %}

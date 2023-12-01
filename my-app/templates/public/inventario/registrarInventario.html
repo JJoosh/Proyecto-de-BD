@@ -1,0 +1,129 @@
+{% extends 'public/base_cpanel.html' %}
+<!-- Cambiando el title -->
+{% block title %}Crud con Python 🐍 | Registrar Inventario{% endblock %}
+<!---->
+{% block customCSS %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename ='assets/css/file.css') }}" />
+{% endblock %}
+
+<!-- Inicio del bloque body -->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">REGISTRAR NUEVO INVENTARIO</h3>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="/form-registrar-inventario"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="nombre_producto" class="form-label">
+                Nombre del producto
+              </label>
+              <input
+                type="text"
+                name="nombre_producto"
+                class="form-control"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="talla_producto" class="form-label">
+                Talla del producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="talla_producto"
+                required />
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-md-6">
+              <label for="modelo_producto" class="form-label">
+                Modelo del producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="modelo_producto"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="costo_producto" class="form-label">
+                Costo del producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="costo_producto"
+                required />
+            </div>
+            <div class="col-md-6">
+                <label for="clasificacion_producto" class="form-label">
+                  Existencia
+                </label>
+                <input
+                  class="form-control"
+                  type="text"
+                  name="Existencia"
+                  required/>
+              </div>
+          </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-md-6">
+              <label for="categoria_producto" class="form-label">
+                Categoría del producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="categoria_producto"
+                required 
+                disabled/>
+            </div>
+            <div class="col-md-6">
+              <label for="clasificacion_producto" class="form-label">
+                Clasificación del producto
+              </label>
+              <input
+                class="form-control"
+                type="text"
+                name="clasificacion_producto"
+                required 
+                disabled/>
+            </div>
+          <div class="row mt-2">
+            <!-- Agrega más campos según sea necesario -->
+          </div>
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block customJS %}
+<script src="{{ url_for('static', filename ='assets/customJS/file.js') }}"></script>
+{% endblock %}
