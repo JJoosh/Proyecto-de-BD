@@ -1,0 +1,52 @@
+{% extends 'public/base_cpanel.html' %}
+{% block title %}Crud con Python 🐍 | Ventas{% endblock %}
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">VENTAS</h3>
+      <hr />
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+          table-hover
+          id="tbl_ventas"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre de Usuario</th>
+              <th>Nombre de Producto</th>
+              <th>Fecha</th>
+              <th>Descargar Reporte</th>
+              <th>Ver Detalles</th> <!-- New column for Ver Detalles button -->
+            </tr>
+          </thead>
+          <tbody>
+            {% for venta in reporte %}
+            <tr id="venta_{{ venta.IdVentas }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ venta.NombreUsuario }}</td>
+              <td>{{ venta.NombreProducto }}</td>
+              <td>{{ venta.fecha_venta }}</td>
+              <td>
+                <a href="/descargar_reporte" class="btn btn-primary btn-sm">Descargar</a>
+              </td>
+              <td>
+                <a href="/ver_detalles/{{ venta.IdVentas }}" class="btn btn-info btn-sm">Ver Detalles</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

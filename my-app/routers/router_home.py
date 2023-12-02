@@ -3,8 +3,17 @@ from flask import render_template, request, flash, redirect, url_for, session,  
 from mysql.connector.errors import Error
 from conexion.conexionBD import connectionBD
 
+import openpyxl
+import datetime
+import re
+import os
+
+from os import remove  # Modulo  para remover archivo
+from os import path  # Modulo para obtener la ruta o directorio
+
 # Importando cenexión a BD
 from controllers.funciones_home import *
+
 
 PATH_URL = "public/empleados"
 
@@ -143,11 +152,84 @@ def inventory():
         flash('Debes iniciar sesión para acceder al inventario.', 'error')
         return redirect(url_for('loginCliente'))
 
-@app.route('/ventas')
+@app.route('/ventas', methods=['GET', 'POST'])
 def ventas():
     # Lógica para la página de ventas
-    return render_template('public/ventas/ventas.html')
+    return render_template('public/ventas/Venta.html')
 
+
+@app.route('/generar-reporte-ventas', methods=['POST'])
+def generar_reporte_ventas_route():
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nombre_usuario = request.form.get('nombre_usuario')
+        id_producto = request.form.get('id_producto')
+
+        try:
+            # Conectar a la base de datos
+            connection = connectionBD()
+            cursor = connection.cursor()
+
+            # Obtener el ID de usuario basado en el nombre del usuario proporcionado
+            select_user_id_query = "SELECT id FROM users WHERE name_surname = %s"
+            cursor.execute(select_user_id_query, (nombre_usuario,))
+            user_id = cursor.fetchone()
+
+            if user_id:
+                user_id = user_id[0]
+
+                # Insertar datos en la tabla de Ventas
+                insert_query = "INSERT INTO Ventas (UserId, InventarioId) VALUES (%s, %s)"
+                cursor.execute(insert_query, (user_id, id_producto))
+
+                # Realizar confirmación de la transacción
+                connection.commit()
+
+                flash('Venta realizada con éxito', 'success')
+            else:
+                # Manejar el caso en que no se encuentra el usuario
+                flash('Usuario no encontrado', 'danger')
+
+        except Exception as e:
+            # Manejar cualquier error que pueda ocurrir durante la inserción
+            print(f"Error al insertar en la base de datos: {e}")
+            connection.rollback()
+
+        finally:
+            # Cerrar la conexión
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+
+    # Redirigir a la página de ventas (puedes ajustar la ruta según tu estructura de carpetas)
+    return render_template('public/ventas/Venta.html')
+
+
+@app.route('/VerReporte', methods=['GET', 'POST'])
+def verreporte():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = ("""
+                    SELECT 
+                        Ventas.IdVentas,
+                        Ventas.fecha_venta,
+                        users.name_surname AS NombreUsuario,
+                        Inventario.Nombre AS NombreProducto,
+                        Ventas.UserId
+                    FROM Ventas
+                    JOIN users ON Ventas.UserId = users.id
+                    JOIN Inventario ON Ventas.InventarioId = Inventario.Id
+                """)
+                cursor.execute(querySQL,)
+                reporte_data = cursor.fetchall()
+
+        return render_template('public/ventas/vistareporte.html', reporte=reporte_data)
+
+    except Exception as e:
+        print(f"Error en la función verreporte: {e}")
+        flash('Ocurrió un error al obtener el reporte.', 'error')
+        return redirect(url_for('loginCliente'))
 
 
 def sql_detalles_productoBD(id_producto):
@@ -229,7 +311,7 @@ def viewFormInventario():
     if 'conectado' in session:
         return render_template('public/inventario/registrarInventario.html')
     else:
-        flash('Primero debes iniciar sesión.', 'error')
+        flash('Primero debes iniciar sesiópip install xlsxwriter --upgraden.', 'error')
         return redirect(url_for('inicio'))
 
 
@@ -246,3 +328,114 @@ def formInventario():
     else:
         flash('Primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
+    
+
+@app.route("/descargar_reporte")
+def descargar_reporte():
+    if 'conectado' in session:
+        return descargarreporte()
+    else:
+        flash('primero debes iniciar sesión.', 'error')
+        return redirect(url_for('inicio'))
+
+
+def descargarreporte():
+    venta = generarepVenta()
+    wb = openpyxl.Workbook()
+    hoja = wb.active
+
+    # Agregar la fila de encabezado con los títulos
+    cabeceraExcel = ("ID de ventas","Nombre de Usuario", "Nombre del producto", "Fecha")
+
+    hoja.append(cabeceraExcel)
+    for registro in venta:
+        print(registro)
+        id_ventas = registro['IdVentas']
+        fecha_venta = registro['fecha_venta']
+        user_id = registro['NombreUsuario']
+        inventario_id = registro['NombreProducto']
+
+        hoja.append((id_ventas, user_id, inventario_id, fecha_venta))
+    
+    # Guardar el libro de trabajo como un archivo Excel
+    fecha_actual = datetime.datetime.now()
+    archivoExcel = f"Reporte_venta_{id_ventas}_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
+    carpeta_descarga = "../static/downloads-excel"
+    ruta_descarga = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), carpeta_descarga)
+
+    if not os.path.exists(ruta_descarga):
+        os.makedirs(ruta_descarga)
+        # Dando permisos a la carpeta
+        os.chmod(ruta_descarga, 0o755)
+
+    ruta_archivo = os.path.join(ruta_descarga, archivoExcel)
+    wb.save(ruta_archivo)
+
+    # Enviar el archivo como respuesta HTTP
+    return send_file(ruta_archivo, as_attachment=True)
+
+def generarepVenta():
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                querySQL = ("""
+                    SELECT 
+                        Ventas.IdVentas,
+                        Ventas.fecha_venta,
+                        users.name_surname AS NombreUsuario,
+                        Inventario.Nombre AS NombreProducto,
+                        Ventas.UserId
+                    FROM Ventas
+                    JOIN users ON Ventas.UserId = users.id
+                    JOIN Inventario ON Ventas.InventarioId = Inventario.Id
+                """)
+                cursor.execute(querySQL,)
+                reporte_data = cursor.fetchall()
+
+        return reporte_data
+
+    except Exception as e:
+        print(f"Error en la función verreporte: {e}")
+        flash('Ocurrió un error al obtener el reporte.', 'error')
+        return redirect(url_for('loginCliente'))
+    
+def sql_detalles_ventaBD(id_venta):
+    conexion_MySQLdb = connectionBD()
+    cursor = conexion_MySQLdb.cursor(dictionary=True)
+
+    # Consulta SQL para obtener detalles de la venta con información del usuario, producto y costo
+    sql_query = """
+        SELECT 
+            Ventas.IdVentas,
+            Ventas.fecha_venta,
+            users.name_surname AS NombreUsuario,
+            Inventario.Nombre AS NombreProducto,
+            Inventario.Costo AS Costo,
+            Ventas.UserId
+        FROM Ventas
+        JOIN users ON Ventas.UserId = users.id
+        JOIN Inventario ON Ventas.InventarioId = Inventario.Id
+        WHERE Ventas.IdVentas = %s
+    """
+    print("Consulta SQL:", sql_query)
+
+    cursor.execute(sql_query, [id_venta])
+
+    detalles_venta = cursor.fetchone()
+
+    # Cerrar la conexión
+    cursor.close()
+    conexion_MySQLdb.close()
+
+    return detalles_venta
+
+
+@app.route("/ver_detalles/<int:idVenta>", methods=['GET'])
+def verDetallesVenta(idVenta):
+    if 'conectado' in session:
+        detalles_venta = sql_detalles_ventaBD(idVenta) or []
+        return render_template('public/ventas/detalles_venta.html', detalles_venta=detalles_venta)
+    else:
+        flash('Primero debes iniciar sesión.', 'error')
+        return redirect(url_for('loginCliente'))
